@@ -1,6 +1,6 @@
 # sphinxfortran_ng
 
-[![pypi](https://badge.fury.io/py/sphinxfortran-ng.svg)](https://badge.fury.io/py/sphinxfortran-ng)
+[![PyPI](https://img.shields.io/pypi/v/sphinxfortran-ng.svg)](https://pypi.python.org/pypi)
 
 An improved version of the original sphinx-fortran python module.
 
