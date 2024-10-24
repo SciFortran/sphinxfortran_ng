@@ -702,8 +702,8 @@ class FortranObject(ObjectDescription):
             if fullname in objects:
                 print(
                     self.env.docname,
-                    'duplicate object description of %s, ' % fullname +
-                    'other instance in ' +
+                    'duplicate object description of ', fullname, 
+                    'other instance in ', 
                     self.env.doc2path(objects[fullname][0]),
                     self.lineno)
             objects[fullname] = (self.env.docname, self.objtype)
