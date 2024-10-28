@@ -1000,9 +1000,9 @@ class F90toRst(object):
             kind = 'var'
         from sphinxfortran_ng.fortran_domain import f_sep
         if falias:
-            return ':f:%(kind)s:`%(falias)s<%(module)s%(f_sep)s%(falias)s>`' % locals()
+            return ':f:%(kind)s:`%(falias)s<~%(module)s%(f_sep)s%(falias)s>`' % locals()
         #print(':f:%(kind)s:`%(module)s%(f_sep)s%(fname)s`' % locals())
-        return ':f:%(kind)s:`%(module)s%(f_sep)s%(fname)s`' % locals()
+        return ':f:%(kind)s:`~%(module)s%(f_sep)s%(fname)s`' % locals()
         
 
     def format_use(self, block, indent=0, short=False):

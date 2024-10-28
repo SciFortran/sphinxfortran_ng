@@ -10,3 +10,4 @@ src/ED_VERSION.f90
 .DS_Store
 *~
 src/*egg*
+dist/*

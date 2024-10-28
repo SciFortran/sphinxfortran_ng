@@ -1064,6 +1064,10 @@ class FortranXRefRole(XRefRole):
         if not has_explicit_title:
             title = title.lstrip('.')   # only has a meaning for the target
             target = target.lstrip('~')  # only has a meaning for the title
+            #add "f/" in front of any target. This doesn't spoil the ones already in
+            #and lets us use intersphinx references
+            if target is not None:
+                target = "f/" + target 
             # if the first character is a tilde, don't display the module/class
             # parts of the contents
             if title[0:1] == '~':
