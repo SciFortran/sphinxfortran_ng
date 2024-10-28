@@ -1262,8 +1262,9 @@ class FortranDomain(Domain):
 
         # Last chance: fuzzy search
         if newname is None:
+            nameshort = name.split(f_sep)[-1]
             matches = [(oname, objects[oname]) for oname in objects
-                       if oname.endswith(f_sep + name)
+                       if oname.endswith(f_sep + nameshort)
                        and objects[oname][1] in objtypes]
         else:
             matches.append((newname, objects[newname]))
