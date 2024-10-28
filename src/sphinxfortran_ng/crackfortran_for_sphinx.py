@@ -2563,7 +2563,7 @@ def get_parameters(vars, global_params={}):
             if nl != n:
                 params[nl] = params[n]
         else:
-            print(vars[n])
+            #print(vars[n])
             outmess(f'get_parameters:parameter {n!r} does not have value?!\n')
     return params
 
