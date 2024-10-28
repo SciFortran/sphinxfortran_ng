@@ -289,6 +289,8 @@ class FortranDocFieldTransformer(DocFieldTransformer):
         :Returns: ``name, shape, type, list of attributes``.
             if no shape is specified, it is set to ``None``,
         """
+        if fieldname[0]==",":
+            fieldname = fieldname[1:]
         m = re_fieldname_match(fieldname.strip())
         if not m:
             raise ValueError(

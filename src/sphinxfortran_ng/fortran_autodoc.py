@@ -1179,16 +1179,28 @@ class F90toRst(object):
 
     def format_interfacearg(self, arg, impl):
         ref = self.routines[impl[0]]['vars'][arg]
-
+        #print(ref)
         vname = arg
         vtype = self.format_argtype(ref)
-        seentypes = {ref['typespec'], }
+        try:
+            thistype = ref['typespec']
+            seentypes = {thistype, }
+        except:
+            thistype = None
+            seentypes={}
         for i in impl[1:]:
             other = self.routines[i]['vars'][arg]
-            if other['typespec'] != ref['typespec'] and other['typespec'] not in seentypes:
+            try:
+                othertype = other['typespec']
+            except:
+                othertype = None
+            if othertype is not None and othertype != thistype and othertype not in seentypes:
                 vtype += ','
                 vtype += self.format_argtype(other)
-                seentypes.add(other['typespec'])
+                if seentypes != {}:
+                    seentypes.add(other['typespec'])
+                else:
+                    seentypes={othertype,}
         vdim = self.format_argdim(ref)
         for i in impl[1:]:
             other = self.routines[i]['vars'][arg]
