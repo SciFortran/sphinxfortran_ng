@@ -152,6 +152,7 @@ class F90toRst(object):
         self._sst = sst
         self._members = []
         self._undoc_members = []
+        self._forceadd_members =[]
         self.exclude_private = True
 
     # Indexing ---
@@ -740,6 +741,14 @@ class F90toRst(object):
         """Get the the list of un-wanted members"""
         return self._undoc_members
     undoc_members = property(get_undoc_members,set_undoc_members, doc='Members not to be documented')
+    
+    def set_forceadd_members(self,members):
+        """Add the members in the list of forceadd members, always documented"""
+        self._forceadd_members = members
+    def get_forceadd_members(self):
+        """Get the the list of forceadd members, always documented"""
+        return self._forceadd_members
+    forceadd_members = property(get_forceadd_members,set_forceadd_members, doc='Members to be always documented')
 
     def is_member(self,object):
         """Define if an object have to be documented"""
@@ -749,6 +758,9 @@ class F90toRst(object):
         if self.undoc_members:
             undoclist = self.undoc_members.split(",")
             undoclist = [x.strip(' ') for x in undoclist]
+        if self.forceadd_members:
+            forceaddlist = self.forceadd_members.split(",")
+            forceaddlist = [x.strip(' ') for x in forceaddlist]
         try:
             name=object.get('name').strip()
         except:
@@ -759,6 +771,8 @@ class F90toRst(object):
             if self.undoc_members: ok = name is None or name not in undoclist
         else:
             if self.members: ok = name in memberlist #even if private, if explicitly listed document it
+        if self.forceadd_members: #if the name is in the forceadd list, always do it
+            ok = ok or name in forceaddlist
         return ok
 
     def indent(self, n):
@@ -1657,7 +1671,8 @@ class FortranAutoModuleDirective(Directive):
     has_content = True
     option_spec = {'title_underline': unchanged, 'indent':fmt_indent,
                    'subsection_type': unchanged,'members': unchanged,
-                   'undoc-members': unchanged, 'include-private': unchanged}
+                   'undoc-members': unchanged, 'forceadd-members': unchanged,
+                   'include-private': unchanged}
     required_arguments = 1
     optional_arguments = 0
 
@@ -1679,7 +1694,7 @@ class FortranAutoModuleDirective(Directive):
         prev_opts={}
         attropts=[('ic','indent'),('ulc','title_underline'),('sst','subsection_type'),
                   ('members','members'),('undoc_members','undoc-members'),
-                  ('exclude_private','include-private')]
+                  ('forceadd_members','forceadd-members'),('exclude_private','include-private')]
         for attr, opt in attropts:
             if self.options.get(opt):
                 prev_opts[(opt, attr)] = getattr(f90torst, attr)
