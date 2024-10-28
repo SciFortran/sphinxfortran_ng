@@ -1075,6 +1075,7 @@ class FortranXRefRole(XRefRole):
                         break
                 if not found_target: #if not, check in intersphinx
                     try:
+                        targetlist=[]
                         all_invs = env.intersphinx_named_inventory
                         which_invs = [inv for inv in all_invs.keys() if 'f:module' in all_invs[inv].keys()
                                       or 'f:subroutine' in all_invs[inv].keys()
@@ -1086,8 +1087,11 @@ class FortranXRefRole(XRefRole):
                             ftypeslist = all_invs[which_invs[iinv]].keys()
                             for jkey in ftypeslist:
                                 for ikey in all_invs[which_invs[iinv]][jkey].keys():
-                                    if targetshort == ikey.split(f_sep)[-1]:
-                                        target = ikey
+                                    if targetshort == ikey.split(f_sep)[-1] and ikey.startswith('f' + f_sep) and (targetlist==[] or (ikey not in targetlist[-1] and targetlist[-1] not in ikey)):
+                                        targetlist.append(ikey)
+                        if len(targetlist)>1:
+                            print("Warning, duplicate labels for "+title+": ",targetlist)
+                        target = targetlist[0]
                     except:
                         pass
             # if the first character is a tilde, don't display the module/class
