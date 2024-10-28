@@ -757,6 +757,8 @@ class F90toRst(object):
         if ok:
             if self.members: ok = name is None or name in memberlist
             if self.undoc_members: ok = name is None or name not in undoclist
+        else:
+            if self.members: ok = name in memberlist #even if private, if explicitly listed document it
         return ok
 
     def indent(self, n):
