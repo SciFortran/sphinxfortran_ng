@@ -1066,10 +1066,30 @@ class FortranXRefRole(XRefRole):
         if not has_explicit_title:
             title = title.lstrip('.')   # only has a meaning for the target
             target = target.lstrip('~')  # only has a meaning for the title
-            #add "f/" in front of any target. This doesn't spoil the ones already in
-            #and lets us use intersphinx references
             if target is not None:
-                target = "f/" + target 
+                found_target = False
+                targetshort = target.split(f_sep)[-1]
+                for ikey in env.domaindata['f']['objects'].keys(): #check if target is in this module
+                    if targetshort ==ikey.split(f_sep)[-1]:
+                        found_target = True
+                        break
+                if not found_target: #if not, check in intersphinx
+                    try:
+                        all_invs = env.intersphinx_named_inventory
+                        which_invs = [inv for inv in all_invs.keys() if 'f:module' in all_invs[inv].keys()
+                                      or 'f:subroutine' in all_invs[inv].keys()
+                                      or 'f:function' in all_invs[inv].keys()
+                                      or 'f:variable' in all_invs[inv].keys()
+                                      or 'f:type' in all_invs[inv].keys()
+                                      or 'f:interface' in all_invs[inv].keys()]
+                        for iinv in range(len(which_invs)):
+                            ftypeslist = all_invs[which_invs[iinv]].keys()
+                            for jkey in ftypeslist:
+                                for ikey in all_invs[which_invs[iinv]][jkey].keys():
+                                    if targetshort == ikey.split(f_sep)[-1]:
+                                        target = ikey
+                    except:
+                        pass
             # if the first character is a tilde, don't display the module/class
             # parts of the contents
             if title[0:1] == '~':
