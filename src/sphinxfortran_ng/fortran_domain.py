@@ -94,10 +94,11 @@ def parse_shape(shape):
 
 def add_shape(node, shape, modname=None, nodefmt=nodes.Text):
     """Format a shape expression for a node"""
-    dims = re.split(r'\s*,\s*', shape.strip('( )'))
+    dims = re.split(r'\s*,\s*', shape[1:-1])
     node += nodefmt(' (', ' (')
-    convert_arithm(node, shape.strip('( )'), modname=modname, nodefmt=nodefmt)
+    convert_arithm(node, shape[1:-1], modname=modname, nodefmt=nodefmt) #fix incorrect parenthesis
     node += nodefmt(')', ')')
+
 
 #class fortranfield(nodes.Admonition, nodes.TextElement): pass
 
