@@ -652,7 +652,7 @@ class F90toRst(object):
             return scomment, iline
         return scomment
 
-    def get_synopsis(self, block, nmax=2):
+    def get_synopsis(self, block, nmax=3):
         """Get the first ``nmax`` non empty lines of the function, type or module comment as 1 line.
 
         If the header has more than ``nmax`` lines, the first one is taken and appended of '...'.
@@ -668,7 +668,7 @@ class F90toRst(object):
             sd.append(line)
             if len(sd) > nmax:
                 if sd[-1].endswith('.'):
-                    sd[-1] += '...'
+                    sd[-1] += '..'
                 break
         if not sd:
             return ''
