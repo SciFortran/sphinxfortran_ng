@@ -874,7 +874,7 @@ class F90toRst(object):
         # Create text block
         text = nlc.join(mylines) + nlc
         if sublines is not None:
-            text += nlc.join(mysublines) + nlc
+            text += nlc + nlc.join(mysublines) + nlc
             del mysublines
         del mylines
         return text
