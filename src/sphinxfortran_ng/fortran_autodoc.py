@@ -1436,35 +1436,44 @@ class F90toRst(object):
     format_function = format_routine
     format_subroutine = format_routine
 
-    def format_quickaccess(self, module, indent=indent):
+    def format_quickaccess(self, block, indent=indent):
         """Format an abstract of all types, variables and routines of a module"""
-        if not isinstance(module, six.string_types):
-            module = module['name']
-
         # Title
         title = self.format_subsection('Quick access', indent=indent) + '\n'
+        decs = []
 
         # Types
-        decs = []
-        tlist = self.get_blocklist('types', module)
-        if tlist:
-            decs.append(':Types: ' +
+        decs_types = []
+        decs_types.append(':Types: ' +
                         ', '.join([':f:type:`%s`' %
-                                   tt['name'] for tt in tlist]))
+                                   subblock['name'] for subblock in block['body'] if subblock['block'] == 'type'  and self.is_member(subblock)]))
+        if decs_types != [':Types: ']:
+                decs.append(decs_types[0])
+
+
 
         # Variables
-        vlist = self.get_blocklist('variables', module)
-        if vlist:
-            decs.append(':Variables: ' +
+        if block['vars']:
+            decs_vars=[]
+            varnames = block['sortvars']
+            decs_vars.append(':Variables: ' +
                         ', '.join([':f:var:`%s`' %
-                                   vv['name'] for vv in vlist]))
+                                   vv for vv in varnames if 'name' in block['vars'][vv] and self.is_member(block['vars'][vv])]))
+            if decs_vars != [':Variables: ']:
+                decs.append(decs_vars[0])
 
         # Functions and subroutines
-        flist = self.get_blocklist('functions', module)
-        if flist:
-            decs.append(':Routines: ' +
-                        ', '.join([':f:func:`~%s/%s`' %
-                                   (module, ff['name']) for ff in flist]))
+        decs_subr=[]
+        blocks = block if isinstance(block, list) else block['body']
+        fdecs = []
+        for subblock in blocks:  # block['body']:
+            if subblock['block'] in ['function', 'subroutine', 'interface'] and self.is_member(subblock):
+                fdecs.append(subblock['name'])
+        if fdecs:
+            fdecs = ', '.join([':f:func:`%s`' % ff for ff in fdecs])
+            decs_subr.append(':Routines: '  + fdecs)
+        if decs_subr and decs_subr != [':Routines: ']:
+            decs.append(decs_subr[0])
 
         if decs:
             return self.format_lines(title + '\n'.join(decs)) + '\n\n'
@@ -1540,7 +1549,7 @@ class F90toRst(object):
         description = self.format_description(block, indent=indent)
 
         # Quick access
-        quickaccess = self.format_quickaccess(modname, indent=indent)
+        quickaccess = self.format_quickaccess(block, indent=indent)
 
         # Use of other modules
         use = self.format_use(block, indent=indent)
