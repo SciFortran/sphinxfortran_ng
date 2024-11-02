@@ -153,6 +153,7 @@ class F90toRst(object):
         self._members = []
         self._undoc_members = []
         self._forceadd_members =[]
+        self._hide_output = False
         self.exclude_private = True
 
     # Indexing ---
@@ -749,6 +750,14 @@ class F90toRst(object):
         """Get the the list of forceadd members, always documented"""
         return self._forceadd_members
     forceadd_members = property(get_forceadd_members,set_forceadd_members, doc='Members to be always documented')
+    
+    def set_hide_output(self,hide):
+        """Add the members in the list of forceadd members, always documented"""
+        self._hide_output = hide
+    def get_hide_output(self):
+        """Get the the list of forceadd members, always documented"""
+        return self._hide_output
+    hide_output = property(get_hide_output,set_hide_output, doc='Members to be always documented')
 
     def is_member(self,object):
         """Define if an object have to be documented"""
@@ -1562,9 +1571,12 @@ class F90toRst(object):
 
         # Subroutines and functions
         routines = self.format_routines(block, indent=indent)
-
-        return declaration + description + quickaccess + \
-            use + types + variables + routines
+        
+        if self.hide_output:
+            return declaration
+        else:
+            return declaration + description + quickaccess + \
+                use + types + variables + routines
 
     def format_srcfile(
             self,
@@ -1693,7 +1705,7 @@ class FortranAutoModuleDirective(Directive):
     option_spec = {'title_underline': unchanged, 'indent':fmt_indent,
                    'subsection_type': unchanged,'members': unchanged,
                    'undoc-members': unchanged, 'forceadd-members': unchanged,
-                   'include-private': unchanged}
+                   'include-private': unchanged, 'hide-output': unchanged}
     required_arguments = 1
     optional_arguments = 0
 
@@ -1715,7 +1727,8 @@ class FortranAutoModuleDirective(Directive):
         prev_opts={}
         attropts=[('ic','indent'),('ulc','title_underline'),('sst','subsection_type'),
                   ('members','members'),('undoc_members','undoc-members'),
-                  ('forceadd_members','forceadd-members'),('exclude_private','include-private')]
+                  ('forceadd_members','forceadd-members'),('exclude_private','include-private'),
+                  ('hide_output','hide-output')]
         for attr, opt in attropts:
             if self.options.get(opt):
                 prev_opts[(opt, attr)] = getattr(f90torst, attr)
