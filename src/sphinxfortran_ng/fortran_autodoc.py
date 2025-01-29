@@ -437,14 +437,16 @@ class F90toRst(object):
             'function',
             'subroutine',
                 'type'] and subsrc is not None:
+            var_done = []
             for line in subsrc:
                 if line.strip().startswith('!'):
                     continue
                 if 'vardescsearch' in block:
                     m = block['vardescsearch'](line)
-                    if m:
+                    if (m and m.group('varname') not in var_done):
                         block['vars'][m.group('varname').lower()]['desc'] = m.group(
                             'vardesc')
+                        var_done.append(m.group('varname'))
 
         # Fill empty descriptions
         for bvar in list(block['vars'].values()):
