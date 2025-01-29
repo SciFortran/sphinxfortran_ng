@@ -281,7 +281,7 @@ class F90toRst(object):
             # the same prefix
             if block['sortvars']:
                 sortvars = map(re.escape, block['sortvars'])
-                sreg = r'.*\b(?P<varname>%s)\b\s*(?P<dims>\([\*:,\w]+\))?[^!\)]*!\s*(?P<vardesc>.*)\s*' % '|'.join(
+                sreg = r'.*\b(?P<varname>%s)\b\s*(?P<dims>\([^\)]*\))?[^!\)]*!\s*(?P<vardesc>.*)\s*' % '|'.join(
                     reversed(sorted(sortvars)))
                 block['vardescsearch'] = re.compile(sreg, re.I).search
             else:
