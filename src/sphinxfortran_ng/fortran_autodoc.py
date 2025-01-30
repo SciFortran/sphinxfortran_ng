@@ -1241,7 +1241,7 @@ class F90toRst(object):
             role = 'o' if optional else 'p'
         return self._fmt_vardesc % locals()
 
-    def format_type(self, block, indent=0, bullet=True):
+    def format_type(self, block, indent=0, bullet=False):
         """Format the description of a module type
 
          :Parameters:
@@ -1522,9 +1522,13 @@ class F90toRst(object):
             types = ''
         return types
 
-    def format_variables(self, block, indent=0):
+    def format_variables(self, block, indent=0, ownSection=False):
         """Format the description of all variables (global or module)"""
         variables = ''
+        if ownSection:
+            block = self.modules[block]
+            variables +=  ', '.join([':f:var:`%s`' % vv for vv in block['sortvars'] if 'name' in block['vars'][vv] and self.is_member(block['vars'][vv])])
+            variables += '\n\n'
         if block['vars']:
             varnames = block['sortvars']
             if block['block'] == 'module':
@@ -1532,8 +1536,9 @@ class F90toRst(object):
             for varname in varnames:
                 bvar = block['vars'][varname]
                 if self.is_member(bvar): variables += self.format_var(bvar, indent=indent)
-            if variables: variables = self.format_subsection(
+            if variables and not ownSection: variables = self.format_subsection(
                 'Variables', indent=indent) + variables + '\n\n'
+            elif variables and ownSection: variables += '\n\n'
         return variables
 
     def format_description(self, block, indent=0):
@@ -1769,6 +1774,57 @@ class FortranAutoModuleDirective(Directive):
             setattr(f90torst,attr,prev_opts[(opt,attr)])
 
         return []
+        
+class FortranAutoModvarsDirective(Directive):
+    has_content = True
+    option_spec = {'title_underline': unchanged, 'indent':fmt_indent,
+                   'subsection_type': unchanged,'members': unchanged,
+                   'undoc-members': unchanged, 'forceadd-members': unchanged,
+                   'include-private': unchanged, 'hide-output': unchanged}
+    required_arguments = 1
+    optional_arguments = 0
+
+    def run(self):
+
+        # Get environment
+        f90torst = self.state.document.settings.env.config._f90torst
+        if f90torst is None:
+            return []
+
+        # Check module name
+        module = self.arguments[0]
+        if module not in f90torst.modules:
+            self.state_machine.reporter.warning(
+                'Wrong fortran module name: ' + module, line=self.lineno)
+#            self.warn('Wrong fortran module name: '+module)
+
+        # Options
+        prev_opts={}
+        attropts=[('ic','indent'),('ulc','title_underline'),('sst','subsection_type'),
+                  ('members','members'),('undoc_members','undoc-members'),
+                  ('forceadd_members','forceadd-members'),('exclude_private','include-private'),
+                  ('hide_output','hide-output')]
+        for attr, opt in attropts:
+            if self.options.get(opt):
+                prev_opts[(opt, attr)] = getattr(f90torst, attr)
+                setattr(f90torst, attr, self.options[opt])
+
+        # Get rst
+        raw_text = f90torst.format_variables(module,ownSection=True)
+        
+        # Check if inside module
+
+        # Insert it
+        source = self.state_machine.input_lines.source(
+            self.lineno - self.state_machine.input_offset - 1)
+        include_lines = string2lines(raw_text, convert_whitespace=1)
+        self.state_machine.insert_input(include_lines, source)
+
+        # Restore defaults
+        for opt,attr in prev_opts:
+            setattr(f90torst,attr,prev_opts[(opt,attr)])
+
+        return []
 
 
 class FortranAutoObjectDirective(Directive):
@@ -1960,6 +2016,7 @@ def setup(app):
         autointerface=FortranAutoInterfaceDirective,
         autoprogram=FortranAutoProgramDirective,
         autosrcfile=FortranAutoSrcfileDirective,
+        automodvars=FortranAutoModvarsDirective,
     )
     app.connect('builder-inited', fortran_parse)
 
