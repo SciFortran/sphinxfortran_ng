@@ -510,16 +510,20 @@ class F90toRst(object):
         blocktype = block['block'].lower()
         blockname = block['name'].lower()
         ftypes = r'(?:(?:%s).*\s+)?' % fortrantypes if blocktype == 'function' else ''
+        if 'prefix' in block:
+            prefixtype = r'(' + block['prefix'] + ')?\s*' + blocktype
+        else:
+            prefixtype = blocktype
         if blocktype == 'interface':   #special case for operator overload
             rstart = re.compile(
                 r"^\s*%s%s\s+%s.*$" %
-                (ftypes, blocktype, re.escape(blockname)), re.I).match
-            rend = re.compile(r"^\s*end\s+%s.*$" % blocktype, re.I).match
+                (ftypes, prefixtype, re.escape(blockname)), re.I).match
+            rend = re.compile(r"^\s*end\s+%s.*$" % prefixtype, re.I).match
         else:
             rstart = re.compile(
                 r"^\s*%s%s\s+%s\b.*$" %
-                (ftypes, blocktype, re.escape(blockname)), re.I).match
-            rend = re.compile(r"^\s*end\s+%s\b.*$" % blocktype, re.I).match
+                (ftypes, prefixtype, re.escape(blockname)), re.I).match
+            rend = re.compile(r"^\s*end\s+%s\b.*$" % prefixtype, re.I).match
         if isinstance(stopmatch, str):
             stopmatch = re.compile(stopmatch).match
 
@@ -1196,7 +1200,10 @@ class F90toRst(object):
 
     def format_interfacearg(self, arg, impl):
         ref = self.routines[impl[0]]['vars'][arg]
-        #print(ref)
+        for i in impl:
+            if 'result' in self.routines[i]:
+                if arg == self.routines[i]['result']:
+                    self.routines[i]['vars'][arg]['result'] = arg            
         vname = arg
         vtype = self.format_argtype(ref)
         try:
@@ -1402,7 +1409,12 @@ class F90toRst(object):
         elif blocktype == 'interface':
             args = {}
             for name in block['implementedby']:
-                for a in self.routines[name]['args']:
+                listargs = self.routines[name]['args'][:]
+                try:
+                    listargs.append(self.routines[name]['result'])
+                except:
+                    pass                  
+                for a in listargs:
                     if a in args:
                         args[a].append(name)
                     else:
