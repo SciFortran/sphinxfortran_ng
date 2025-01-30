@@ -210,8 +210,8 @@ class F90toRst(object):
 
                         # Variables
                         varnames = subblock['sortvars']
-                        if subblock['block'] == 'type':
-                            varnames.sort()
+                        #if subblock['block'] == 'type':
+                        #    varnames.sort()
                         for varname in varnames:
                             subblock['vars'][varname]['name'] = varname
 
@@ -1258,7 +1258,8 @@ class F90toRst(object):
 
         # Variables
         vlines = []
-        for varname in sorted(block['sortvars']):
+        #for varname in sorted(block['sortvars']):
+        for varname in block['sortvars']:
             bvar = block['vars'][varname]
             vlines.append(self.format_argfield(bvar, role='f'))
         variables = self.format_lines(vlines, indent=indent + 1) + '\n'
