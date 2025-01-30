@@ -510,10 +510,16 @@ class F90toRst(object):
         blocktype = block['block'].lower()
         blockname = block['name'].lower()
         ftypes = r'(?:(?:%s).*\s+)?' % fortrantypes if blocktype == 'function' else ''
-        rstart = re.compile(
-            r"^\s*%s%s\s+%s\b.*$" %
-            (ftypes, blocktype, re.escape(blockname)), re.I).match
-        rend = re.compile(r"^\s*end\s+%s\b.*$" % blocktype, re.I).match
+        if blocktype == 'interface':   #special case for operator overload
+            rstart = re.compile(
+                r"^\s*%s%s\s+%s.*$" %
+                (ftypes, blocktype, re.escape(blockname)), re.I).match
+            rend = re.compile(r"^\s*end\s+%s.*$" % blocktype, re.I).match
+        else:
+            rstart = re.compile(
+                r"^\s*%s%s\s+%s\b.*$" %
+                (ftypes, blocktype, re.escape(blockname)), re.I).match
+            rend = re.compile(r"^\s*end\s+%s\b.*$" % blocktype, re.I).match
         if isinstance(stopmatch, str):
             stopmatch = re.compile(stopmatch).match
 
