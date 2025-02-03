@@ -1287,7 +1287,7 @@ class F90toRst(object):
         #vdesc = block.get('desc', '')
         # return specs+'\n'+vdesc+'\n'
 
-    def format_var(self, block, indent=0, bullet=True):
+    def format_var(self, block, indent=0, bullet=False):
         """Format the description of a module type
 
          :Parameters:
@@ -1296,7 +1296,27 @@ class F90toRst(object):
         """
         # Description of the variable
         options = self.get_varopts(block)
-        description = block.get('desc', None)
+        try:
+            typeshape = ':Type: ' +options['type']
+            del options['type']
+        except:
+            typeshape = ''
+        try:
+            typeshape += options['shape'].replace(':', '•')+ '\n\n'
+            del options['shape']
+        except:
+            typeshape += '\n\n'
+        try:
+            attrs = re.split(r"default=", options['attrs'])
+            attrs[0] = re.sub(r",\s*", ", ",':Attributes: ' + attrs[0].strip(','))
+            if len(attrs) > 1:
+                attrs[1] = ':Default: ' + attrs[1].strip(',')
+            attrs = '\n'.join(line for line in attrs if line.strip()) + '\n\n'
+            del options['attrs']
+        except:
+            attrs = ''
+        description = block.get('desc', None) + '\n\n' + typeshape + attrs
+        
         if 'name' in block:
             declaration = self.format_declaration(
                 'variable',
