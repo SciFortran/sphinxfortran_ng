@@ -281,12 +281,16 @@ class F90toRst(object):
             # the same prefix
             if block['sortvars']:
                 sortvars = map(re.escape, block['sortvars'])
-                #sreg = r'.*\b(?P<varname>%s)\b\s*(?P<dims>\([^\)]*\))?[^!\)]*!\s*(?P<vardesc>.*)\s*' % '|'.join(
+                sortvars_fallback = map(re.escape, block['sortvars'])
                 sreg = r'.*\b(?P<varname>%s)(?!\s*\()[^\)]*\b(?!\s*\()[^\w]*\s*(?P<dims>\([^\)]*\))?[^!\)]*!\s*(?P<vardesc>.*)\s*' % '|'.join(
+                    reversed(sorted(sortvars_fallback)))
+                sreg_fallback = r'.*\b(?P<varname>%s)\b\s*(?P<dims>\([^\)]*\))?[^!\)]*!\s*(?P<vardesc>.*)\s*' % '|'.join(
                     reversed(sorted(sortvars)))
                 block['vardescsearch'] = re.compile(sreg, re.I).search
+                block['vardescsearch_fallback'] = re.compile(sreg_fallback, re.I).search
             else:
                 block['vardescsearch'] = lambda x: None
+                block['vardescsearch_fallback'] = lambda x: None
 
     def build_callfrom_index(self):
         """For each function, index which function call it"""
@@ -434,16 +438,30 @@ class F90toRst(object):
 
         # Get description of variables from inline comment that overwrites
         # description inferred from header comment
+        var_done = []
         if block['block'] in [
             'function',
             'subroutine',
                 'type'] and subsrc is not None:
-            var_done = []
             for line in subsrc:
                 if line.strip().startswith('!'):
                     continue
                 if 'vardescsearch' in block:
                     m = block['vardescsearch'](line)
+                    if (m and m.group('varname') not in var_done):
+                        block['vars'][m.group('varname').lower()]['desc'] = m.group(
+                            'vardesc')
+                        var_done.append(m.group('varname'))
+                        
+        if block['block'] in [
+            'function',
+            'subroutine',
+                'type'] and subsrc is not None:
+            for line in subsrc:
+                if line.strip().startswith('!'):
+                    continue
+                if 'vardescsearch_fallback' in block:
+                    m = block['vardescsearch_fallback'](line)
                     if (m and m.group('varname') not in var_done):
                         block['vars'][m.group('varname').lower()]['desc'] = m.group(
                             'vardesc')
