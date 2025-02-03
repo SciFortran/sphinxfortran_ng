@@ -1149,7 +1149,7 @@ class F90toRst(object):
                 newattrs.append('default=' + default_value)
             if 'private' in newattrs and 'public' in newattrs:
                 newattrs.remove('private')
-            vattr.append('/'.join(newattrs))
+            vattr.append(','.join(newattrs))
         if not vattr:
             return ''
         vattr = list(filter(None, vattr))

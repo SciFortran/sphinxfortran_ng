@@ -2894,9 +2894,9 @@ def analyzevars(block):
         if '=' in vars[n]:
             if 'attrspec' not in vars[n]:
                 vars[n]['attrspec'] = []
-            if ('optional' not in vars[n]['attrspec']) and \
-               ('required' not in vars[n]['attrspec']):
-                vars[n]['attrspec'].append('optional')
+            #if ('optional' not in vars[n]['attrspec']) and \
+            #   ('required' not in vars[n]['attrspec']):
+            #    vars[n]['attrspec'].append('optional')
             if 'depend' not in vars[n]:
                 vars[n]['depend'] = []
                 for v, m in list(dep_matches.items()):

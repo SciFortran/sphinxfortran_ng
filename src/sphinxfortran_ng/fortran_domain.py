@@ -676,9 +676,9 @@ class FortranObject(ObjectDescription):
             for iatt, att in enumerate(re.split(r'\s*,\s*', attrs)):
                 if iatt:
                     signode += nodes.emphasis(',', ',')
-                if att.startswith('parameter'):
+                if att.startswith('default'):
                     value = att.split('=')[1]
-                    signode += nodes.emphasis('parameter=', 'parameter=')
+                    signode += nodes.emphasis('default=', 'default=')
                     convert_arithm(signode, value, modname=modname)
                 else:
                     signode += nodes.emphasis(att, att)
