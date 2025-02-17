@@ -2637,7 +2637,7 @@ def analyzevars(block):
             try:
                 dep_matches[n]
             except KeyError:
-                dep_matches[n] = re.compile(r'.*\b%s\b' % (v), re.I).match
+                dep_matches[n] = re.compile(r'.*\b%s\b' % re.escape(v), re.I).match
     for n in svars:
         if n[0] in list(attrrules.keys()):
             vars[n] = setattrspec(vars[n], attrrules[n[0]])
