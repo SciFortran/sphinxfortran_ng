@@ -352,13 +352,21 @@ class F90toRst(object):
                 self.strip_blocksrc(
                     block, [
                         'type', 'function', 'subroutine', 'interface'], src=modsrc)
+                nameold = None
                 if modsrc and 'vardescsearch' in block:
                     for line in modsrc:
-                        if line.strip().startswith('!'):
-                            continue
+                        if not line.strip().startswith('!') or line.strip() == '!':
+                            nameold = None
+                        else:
+                            if nameold is not None:
+                                block['vars'][nameold]['desc'] +=line.lstrip()[1:]
+                                continue
+                            else:
+                                continue
                         m = block['vardescsearch'](line)
                         if m:
-                            block['vars'][m.group('varname').lower()]['desc'] = m.group(
+                            nameold = m.group('varname').lower()
+                            block['vars'][nameold]['desc'] = m.group(
                                 'vardesc')
                 for bvar in list(block['vars'].values()):
                     bvar.setdefault('desc', '')
