@@ -1273,7 +1273,7 @@ class F90toRst(object):
             other = self.routines[i]['vars'][arg]
             if ('dimension' in other and 'dimension' not in ref) or \
                ('dimension' not in other and 'dimension' in ref) or \
-               ('dimension' in other and 'dimension' in ref and len(other['dimension']) != len(ref['dimension'])):
+               ('dimension' in other and 'dimension' in ref and (other['dimension'] != ref['dimension'])):
                 vdim = '(various shapes)'
         vattr = self.format_argattr(ref)
         vdesc = ref['desc'] if 'desc' in ref else ''
