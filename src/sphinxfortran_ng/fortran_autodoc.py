@@ -439,31 +439,47 @@ class F90toRst(object):
         # Get description of variables from inline comment that overwrites
         # description inferred from header comment
         var_done = []
+        nameold = None
         if block['block'] in [
             'function',
             'subroutine',
                 'type'] and subsrc is not None:
             for line in subsrc:
-                if line.strip().startswith('!'):
-                    continue
+                if not line.strip().startswith('!') or line.strip() == '!':
+                    nameold = None
+                else:
+                    if nameold is not None:
+                        block['vars'][nameold]['desc'] +=line.lstrip()[1:]
+                        continue
+                    else:
+                        continue
                 if 'vardescsearch' in block:
                     m = block['vardescsearch'](line)
                     if (m and m.group('varname') not in var_done):
-                        block['vars'][m.group('varname').lower()]['desc'] = m.group(
+                        nameold = m.group('varname').lower()
+                        block['vars'][nameold]['desc'] = m.group(
                             'vardesc')
                         var_done.append(m.group('varname'))
-                        
+        
+        nameold = None                       
         if block['block'] in [
             'function',
             'subroutine',
                 'type'] and subsrc is not None:
             for line in subsrc:
-                if line.strip().startswith('!'):
-                    continue
+                if not line.strip().startswith('!') or line.strip() == '!':
+                    nameold = None
+                else:
+                    if nameold is not None:
+                        block['vars'][nameold]['desc'] +=line.lstrip()[1:]
+                        continue
+                    else:
+                        continue
                 if 'vardescsearch_fallback' in block:
                     m = block['vardescsearch_fallback'](line)
                     if (m and m.group('varname') not in var_done):
-                        block['vars'][m.group('varname').lower()]['desc'] = m.group(
+                        nameold = m.group('varname').lower()
+                        block['vars'][nameold]['desc'] = m.group(
                             'vardesc')
                         var_done.append(m.group('varname'))
 
