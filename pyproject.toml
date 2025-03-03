@@ -1,6 +1,6 @@
 [project]
 name = 'sphinxfortran_ng'
-version = '0.3.5'
+version = '0.3.6'
 authors = [{name = "Lorenzo Crippa", email="crippa.lorenzo@gmail.com"}]
 description = "An improved version of the sphinx-fortran python module"
 readme = "README.md"

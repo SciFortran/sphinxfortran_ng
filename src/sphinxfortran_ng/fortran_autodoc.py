@@ -1358,21 +1358,28 @@ class F90toRst(object):
             attrs[0] = re.sub(r",\s*", ", ",':Attributes: ' + attrs[0].strip(','))
             if len(attrs) > 1:
                 attrs[1] = ':Default: ' + attrs[1].strip(',')
-            #Search for patterns in the description of the type :something $varname:`something else`
-            if varname is not None:
-                pattern = rf':([\w\s]+) {re.escape(varname)}:`([^`]+)`'
-                searchfordefault = block.get('desc', None)
-                match = re.search(pattern, searchfordefault, re.IGNORECASE)
-                if match:
-                    keyword = match.group(1)  # The word inside `: :`
-                    extracted = match.group(2) or match.group(3)  # Extract quoted text or single word
-                    thematch = ':'+keyword+': '+ extracted
-                    attrs.append(thematch)
-                    thedescription = re.sub(pattern, '', searchfordefault, flags=re.IGNORECASE)
-            attrs = '\n'.join(line for line in attrs if line.strip()) + '\n\n'
-            del options['attrs']
         except:
             attrs = ''
+        #Search for patterns in the description of the type :something $varname:`something else`
+        if varname is not None:
+            pattern = rf':([\w\s]+) {re.escape(varname)}:`([^`]+)`'
+            searchfordefault = block.get('desc', None)
+            match = re.search(pattern, searchfordefault, re.IGNORECASE)
+            if match:
+                keyword = match.group(1)  # The word inside `: :`
+                extracted = match.group(2) or match.group(3)  # Extract quoted text or single word
+                thematch = ':'+keyword+': '+ extracted
+                if attrs == '':
+                    attrs=[thematch]
+                else:
+                    attrs.append(thematch)
+                thedescription = re.sub(pattern, '', searchfordefault, flags=re.IGNORECASE)
+        if attrs != '':
+            attrs = '\n'.join(line for line in attrs if line.strip()) + '\n\n'
+            try:
+                del options['attrs']
+            except:
+                pass
         description = thedescription + '\n\n' + typeshape + attrs
         
         if 'name' in block:
