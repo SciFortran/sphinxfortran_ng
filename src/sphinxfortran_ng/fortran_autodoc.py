@@ -1339,6 +1339,10 @@ class F90toRst(object):
         # Description of the variable
         options = self.get_varopts(block)
         try:
+            varname = str(block['name'])
+        except:
+            varname = None
+        try:
             typeshape = ':Type: ' +options['type']
             del options['type']
         except:
@@ -1348,16 +1352,28 @@ class F90toRst(object):
             del options['shape']
         except:
             typeshape += '\n\n'
+        thedescription = block.get('desc', None)
         try:
             attrs = re.split(r"default=", options['attrs'])
             attrs[0] = re.sub(r",\s*", ", ",':Attributes: ' + attrs[0].strip(','))
             if len(attrs) > 1:
                 attrs[1] = ':Default: ' + attrs[1].strip(',')
+            #Search for patterns in the description of the type :something $varname:`something else`
+            if varname is not None:
+                pattern = rf':([\w\s]+) {re.escape(varname)}:`([^`]+)`'
+                searchfordefault = block.get('desc', None)
+                match = re.search(pattern, searchfordefault, re.IGNORECASE)
+                if match:
+                    keyword = match.group(1)  # The word inside `: :`
+                    extracted = match.group(2) or match.group(3)  # Extract quoted text or single word
+                    thematch = ':'+keyword+': '+ extracted
+                    attrs.append(thematch)
+                    thedescription = re.sub(pattern, '', searchfordefault, flags=re.IGNORECASE)
             attrs = '\n'.join(line for line in attrs if line.strip()) + '\n\n'
             del options['attrs']
         except:
             attrs = ''
-        description = block.get('desc', None) + '\n\n' + typeshape + attrs
+        description = thedescription + '\n\n' + typeshape + attrs
         
         if 'name' in block:
             declaration = self.format_declaration(
