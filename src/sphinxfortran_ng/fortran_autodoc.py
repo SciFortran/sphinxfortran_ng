@@ -359,7 +359,12 @@ class F90toRst(object):
                             nameold = None
                         else:
                             if nameold is not None:
-                                block['vars'][nameold]['desc'] +=line.lstrip()[1:]
+                                thestring = line.lstrip()[1:]
+                                if thestring.lstrip().startswith('*'):
+                                    block['vars'][nameold]['desc'] += "\n\n"
+                                block['vars'][nameold]['desc'] += thestring
+                                if thestring.lstrip().startswith('*'):
+                                    block['vars'][nameold]['desc'] += "\n\n"
                                 continue
                             else:
                                 continue
@@ -457,7 +462,12 @@ class F90toRst(object):
                     nameold = None
                 else:
                     if nameold is not None:
-                        block['vars'][nameold]['desc'] +=line.lstrip()[1:]
+                        thestring = line.lstrip()[1:]
+                        if thestring.lstrip().startswith('*'):
+                            block['vars'][nameold]['desc'] += "\n\n"
+                        block['vars'][nameold]['desc'] += thestring
+                        if thestring.lstrip().startswith('*'):
+                            block['vars'][nameold]['desc'] += "\n\n"
                         continue
                     else:
                         continue
@@ -479,7 +489,12 @@ class F90toRst(object):
                     nameold = None
                 else:
                     if nameold is not None:
-                        block['vars'][nameold]['desc'] +=line.lstrip()[1:]
+                        thestring = line.lstrip()[1:]
+                        if thestring.lstrip().startswith('*'):
+                            block['vars'][nameold]['desc'] += "\n\n"
+                        block['vars'][nameold]['desc'] += thestring
+                        if thestring.lstrip().startswith('*'):
+                            block['vars'][nameold]['desc'] += "\n\n"
                         continue
                     else:
                         continue
