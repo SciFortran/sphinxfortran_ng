@@ -581,7 +581,7 @@ class F90toRst(object):
             rstart = re.compile(
                 r"^\s*%s%s\s+%s\b.*$" %
                 (ftypes, prefixtype, re.escape(blockname)), re.I).match
-            rend = re.compile(r"^\s*end\s+%s\b.*$" % prefixtype, re.I).match
+            rend = re.compile(r"^\s*end\s+%s\s+%s\b.*$" % (prefixtype, re.escape(blockname)), re.I).match
         if isinstance(stopmatch, str):
             stopmatch = re.compile(stopmatch).match
 
