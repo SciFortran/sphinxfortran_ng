@@ -1586,7 +1586,7 @@ class F90toRst(object):
         # Variables
         if block['vars']:
             decs_vars=[]
-            varnames = block['sortvars']
+            varnames = sorted(block['sortvars'])
             decs_vars.append(':Variables: ' +
                         ', '.join([':f:var:`%s`' %
                                    vv for vv in varnames if 'name' in block['vars'][vv] and self.is_member(block['vars'][vv])]))
@@ -1600,6 +1600,7 @@ class F90toRst(object):
         for subblock in blocks:  # block['body']:
             if subblock['block'] in ['function', 'subroutine', 'interface'] and self.is_member(subblock):
                 fdecs.append(subblock['name'])
+        fdecs.sort()
         if fdecs:
             fdecs = ', '.join([':f:func:`%s`' % ff for ff in fdecs])
             decs_subr.append(':Routines: '  + fdecs)
