@@ -298,6 +298,11 @@ class FortranDocFieldTransformer(DocFieldTransformer):
                 'Wrong field (%s). It must have at least one parameter name and one argument' %
                 fieldname)
         ftype, name, shape, attrs = m.groups()
+        if ftype is not None:
+            try:
+                ftype = ftype.replace(",","/") #use dash instead of comma in case of multiple types (interface)
+            except:
+                pass
         attrs = attrs and attrs[1:-1]
         # if attrs:
         #attrs = [a.strip() for a in attrs[1:-1].split(',')]
