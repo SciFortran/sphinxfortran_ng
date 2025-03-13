@@ -1189,9 +1189,9 @@ class FortranDomain(Domain):
         'program': ObjType(_('program'), 'prog'),
         'type': ObjType(_('type'), 'type'),
         'variable': ObjType(_('variable'), 'var'),
-        'function': ObjType(_('function'), 'func'),
-        'subroutine': ObjType(_('subroutine'), 'func', 'subr'),
-        'interface': ObjType(_('interface'), 'func', 'subr'),
+        'function': ObjType(_('function'), 'func', 'func_inline'),
+        'subroutine': ObjType(_('subroutine'), 'func', 'func_inline', 'subr', 'subr_inline'),
+        'interface': ObjType(_('interface'), 'func', 'func_inline', 'subr', 'subr_inline'),
         'module': ObjType(_('module'), 'mod'),
     }
 
@@ -1211,7 +1211,9 @@ class FortranDomain(Domain):
         'type': FortranXRefRole(),
         'var': FortranXRefRole(),
         'func': FortranXRefRole(fix_parens=True),
+        'func_inline': FortranXRefRole(fix_parens=False),
         'subr': FortranXRefRole(fix_parens=True),
+        'subr_inline': FortranXRefRole(fix_parens=False),
         'mod': FortranXRefRole(),
     }
     initial_data = {
