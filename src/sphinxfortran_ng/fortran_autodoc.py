@@ -341,7 +341,7 @@ class F90toRst(object):
                 modsrc = self.get_blocksrc(block)
 
                 # Get module description
-                block['desc'] = self.get_comment(modsrc, aslist=True)
+                block['desc'],block['synopsis'] = self.get_comment(modsrc, aslist=True)
 
                 # Scan types and routines
                 for subblock in block['body']:
@@ -392,7 +392,7 @@ class F90toRst(object):
         subsrc = self.get_blocksrc(block, insrc)
 
         # Comment
-        block['desc'] = self.get_comment(subsrc, aslist=True)
+        block['desc'],block['synopsis'] = self.get_comment(subsrc, aslist=True)
 
         # Scan comments to find descriptions
         if block['desc'] and block['block'] in [
@@ -671,6 +671,7 @@ class F90toRst(object):
             - OR ``scomment,ilast``: if ``getilast is True``
         """
         scomment = []
+        synopsis = []
         if src:
             in_a_breaked_line = src[0].strip().endswith('&')
             for iline in range(iline, len(src)):
@@ -713,15 +714,18 @@ class F90toRst(object):
                     prefix = self._re_space_prefix_match(comment).group(1)
                 if comment.startswith(prefix):
                     comment = comment[len(prefix):]
-
-                # Save comment
-                scomment.append(comment)
+                # Is it the synopsis?
+                if comment.lstrip().startswith(':synopsis:'):
+                    synopsis.append(comment.replace(':synopsis:',''))
+                else:
+                    scomment.append(comment)
 
         if not aslist:
             scomment = self.format_lines(scomment, nlc=' ')
+            synopsis = self.format_lines(synopsis, nlc=' ')
         if getilast:
             return scomment, iline
-        return scomment
+        return scomment, synopsis
 
     def get_synopsis(self, block, nmax=3):
         """Get the first ``nmax`` non empty lines of the function, type or module comment as 1 line.
@@ -730,17 +734,22 @@ class F90toRst(object):
         If description if empty, it returns an empty string.
         """
         sd = []
-        for line in block['desc']:
-            line = line.strip()
-            if not line:
-                if not sd:
-                    continue
-                break
-            sd.append(line)
-            if len(sd) > nmax:
-                if sd[-1].endswith('.'):
-                    sd[-1] += '..'
-                break
+        if block['synopsis']:
+            for line in block['synopsis']:
+                line = line.strip()
+                sd.append(line)
+        else:
+            for line in block['desc']:
+                line = line.strip()
+                if not line:
+                    if not sd:
+                        continue
+                    break
+                sd.append(line)
+                if len(sd) > nmax:
+                    if sd[-1].endswith('.'):
+                        sd[-1] += '..'
+                    break
         if not sd:
             return ''
         sd = ' '.join(sd)
@@ -1643,6 +1652,15 @@ class F90toRst(object):
             elif variables and ownSection: variables += '\n\n'
         return variables
 
+    def format_synopsis(self, block, indent=0):
+        """Format the description of an object"""
+        synopsis	 = ''
+        if block['synopsis']:
+            synopsis = self.format_subsection('Synopsis', indent=indent)
+            synopsis += self.format_lines(
+                block['synopsis'], indent=indent, strip=True) + '\n'
+        return synopsis
+
     def format_description(self, block, indent=0):
         """Format the description of an object"""
         description = ''
@@ -1683,6 +1701,9 @@ class F90toRst(object):
                 synopsis=self.get_synopsis(block).strip() or None))
 
         # Description
+        synopsis = self.format_synopsis(block, indent=indent)
+
+        # Description
         description = self.format_description(block, indent=indent)
 
         # Quick access
@@ -1703,7 +1724,7 @@ class F90toRst(object):
         if self.hide_output:
             return declaration
         else:
-            return declaration + description + quickaccess + \
+            return declaration + synopsis + description + quickaccess + \
                 use + types + variables + routines
 
     def format_srcfile(
