@@ -1684,7 +1684,7 @@ class F90toRst(object):
                 'Subroutines and functions', indent=indent) + fdecs
         return routines
 
-    def format_module(self, block, indent=0):
+    def format_module(self, block, indent=0, print_synopsis=False):
         """Recursively format a module and its declarations"""
 
         # Declaration of the module
@@ -1724,8 +1724,12 @@ class F90toRst(object):
         if self.hide_output:
             return declaration
         else:
-            return declaration + synopsis + description + quickaccess + \
-                use + types + variables + routines
+            if print_synopsis:
+                return declaration + synopsis + description + quickaccess + \
+                    use + types + variables + routines
+            else:
+                return declaration + description + quickaccess + \
+                    use + types + variables + routines
 
     def format_srcfile(
             self,
