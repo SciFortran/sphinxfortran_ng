@@ -1235,7 +1235,7 @@ def analyzeline(m, case, line):
                 if case in ['public', 'private']:
                     k = ''
                 else:
-                    print(m.groupdict())
+                    #print(m.groupdict())
                     outmess('analyzeline: no name pattern found in %s statement for %s. Skipping.\n' % (
                         case, repr(e)))
                     continue
@@ -1552,7 +1552,7 @@ def analyzeline(m, case, line):
             else:
                 pass
         else:
-            print(m.groupdict())
+            #print(m.groupdict())
             outmess('analyzeline: Could not crack the use statement.\n')
     elif case in ['f2pyenhancements']:
         if 'f2pyenhancements' not in groupcache[groupcounter]:
@@ -1575,7 +1575,7 @@ def analyzeline(m, case, line):
                         m.group('this'))
     else:
         if verbose > 1:
-            print(m.groupdict())
+            #print(m.groupdict())
             outmess('analyzeline: No code implemented for line.\n')
 
 
