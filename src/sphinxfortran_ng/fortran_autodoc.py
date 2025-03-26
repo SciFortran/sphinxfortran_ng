@@ -1129,7 +1129,7 @@ class F90toRst(object):
                         if fname != falias:
                             falias = self.format_funcref(
                                 falias, module=mname)
-                            func = '%s => %s' % (self.format_funcref(fname), falias)
+                            func = '%s ⇒ %s' % (self.format_funcref(fname), falias)
                         funcs.append(func)
                     shortline += ' (%s)' % ', '.join(funcs)
                     funcline += '%s' % '\n '.join(funcs)
