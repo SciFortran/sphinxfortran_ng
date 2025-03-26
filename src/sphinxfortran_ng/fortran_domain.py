@@ -1073,9 +1073,11 @@ class FortranXRefRole(XRefRole):
             title = title.lstrip('.')   # only has a meaning for the target
             target = target.lstrip('~')  # only has a meaning for the title
             if target is not None:
+                target = target.lower()
                 found_target = False
                 targetshort = target.split(f_sep)[-1]
                 for ikey in env.domaindata['f']['objects'].keys(): #check if target is in this module
+                    ikey = ikey.lower()
                     if targetshort ==ikey.split(f_sep)[-1]:
                         found_target = True
                         break
@@ -1093,7 +1095,8 @@ class FortranXRefRole(XRefRole):
                             ftypeslist = all_invs[which_invs[iinv]].keys()
                             for jkey in ftypeslist:
                                 for ikey in all_invs[which_invs[iinv]][jkey].keys():
-                                    if targetshort == ikey.split(f_sep)[-1] and ikey.startswith('f' + f_sep) and (targetlist==[] or (ikey not in targetlist[-1] and targetlist[-1] not in ikey)):
+                                    #if targetshort == ikey.split(f_sep)[-1] and ikey.startswith('f' + f_sep) and (targetlist==[] or (ikey not in targetlist[-1] and targetlist[-1] not in ikey)):
+                                    if targetshort.lower() == ikey.split(f_sep)[-1].lower() and ikey.lower().startswith('f' + f_sep.lower()) and (targetlist == [] or (ikey not in targetlist[-1] and targetlist[-1] not in ikey)):
                                         targetlist.append(ikey)
                         if len(targetlist)>1:
                             print("Warning, duplicate labels for "+title+": ",targetlist)
