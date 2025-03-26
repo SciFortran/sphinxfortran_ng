@@ -45,6 +45,7 @@ from collections import OrderedDict
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
+from sphinx.util.docutils import SphinxDirective
 
 from sphinx import addnodes, version_info
 from sphinx.roles import XRefRole
@@ -1309,16 +1310,33 @@ class FortranDomain(Domain):
                      type, target, node, contnode):
         modname = node.get('f:module', node.get('modname'))
         typename = node.get('f:type', node.get('typename'))
+        docname = env.docname
         searchorder = node.hasattr('refspecific') and 1 or 0
         matches = self.find_obj(env, modname, target, type, searchorder)
+        
+        
+        # Check for preferred cross-references
+        if hasattr(env, 'preferred_crossrefs') and docname in env.preferred_crossrefs:
+            preferred_crossrefs = env.preferred_crossrefs[docname]
+        else:
+            preferred_crossrefs = {}
+        if target in preferred_crossrefs:
+            # If we have a preferred cross-reference, replace the target
+            target = preferred_crossrefs[target]
+            objects = self.data['objects']
+            matches = [(target,objects[target])]
+
+            
+        
+        
         if not matches:
             return None
         elif len(matches) > 1:
             print(fromdocname,
-                     'more than one target found for cross-reference '
-                     '%r: %s' % (target,
-                                 ', '.join(match[0] for match in matches)),
-                     node.line)
+                 'more than one target found for cross-reference '
+                 '%r: %s' % (target,
+                             ', '.join(match[0] for match in matches)),
+                 node.line)
         name, obj = matches[0]
 
         if obj[1] == 'module':
@@ -1331,8 +1349,6 @@ class FortranDomain(Domain):
                 title += ': ' + synopsis
             if deprecated:
                 title += _(' (deprecated)')
-            # return make_refnode(builder, fromdocname, docname,
-                # 'module-' + name, contnode, title)
             return make_refnode(builder, fromdocname, docname,
                                 name, contnode, title)
         else:
@@ -1346,5 +1362,50 @@ class FortranDomain(Domain):
             yield (refname, refname, type, docname, refname, 1)
 
 
+class PreferredCrossrefsDirective(SphinxDirective):
+    has_content = True
+
+    def run(self):
+        crossrefs = {}
+        
+        # Get the current document name or a unique identifier for the .rst file
+        docname = self.state.document.settings.env.docname
+
+        # Process the content of the directive
+        for line in self.content:
+            line = line.strip()
+            if not line:  # Skip empty lines
+                continue
+        
+            if line.startswith(":"):
+                line = line[1:].lstrip() 
+
+            # Split the line at the first colon
+            parts = line.split(":", 1)
+            if len(parts) != 2:  # Skip lines that do not have exactly one colon
+                continue
+
+            key, value = parts
+            key = key.strip()
+            value = value.strip()
+
+            # Store the cross-references for this specific .rst file
+            crossrefs[key] = value
+
+        # Store the cross-references in the Sphinx environment, grouped by .rst file
+        env = self.state.document.settings.env
+        if not hasattr(env, 'preferred_crossrefs'):
+            env.preferred_crossrefs = {}
+
+        # Initialize the document-specific cross-references if not yet set
+        if docname not in env.preferred_crossrefs:
+            env.preferred_crossrefs[docname] = {}
+
+        # Update the document-specific cross-references
+        env.preferred_crossrefs[docname].update(crossrefs)
+
+        return []
+
 def setup(app):
+    app.add_directive('preferred-crossrefs', PreferredCrossrefsDirective)
     app.add_domain(FortranDomain)
