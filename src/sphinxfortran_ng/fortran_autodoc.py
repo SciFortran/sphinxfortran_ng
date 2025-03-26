@@ -1106,12 +1106,14 @@ class F90toRst(object):
             if short:
                 use = ':use: '
             else:
-                use = self.format_subsection('Used modules', indent=indent)
+                use_internal = self.format_subsection('Used modules', indent=indent)
+                use_external = self.format_subsection('External modules', indent=indent)
             lines = []
             shortlines = []
             funclines=[]
+            is_internal ={}
             for mname, monly in list(block['use'].items()):
-
+                is_internal[mname] = mname in self.modules
                 # Reference to the module
                 line = (self.indent(indent) if not short else '') + \
                     ':f:mod:`%s`' % mname
@@ -1143,6 +1145,7 @@ class F90toRst(object):
                 # Append
                 shortlines.append(shortline)
                 lines.append([line])
+
             if short:
                 use += ', '.join(shortlines)
                 use = self.format_lines(use, indent)
@@ -1152,7 +1155,17 @@ class F90toRst(object):
                         subln = None
                     else:
                         subln = funclines[i]
-                    use += self.format_lines(lines[i], indent, bullet='-',sublines=subln) + '\n'
+                    try:
+                        mname=re.search(r':f:mod:`([^`]+)`', lines[i][0]).group(1)
+                        isint = is_internal[mname]
+                    except:
+                        isint = True
+                    if isint:
+                        use_internal += self.format_lines(lines[i], indent, bullet='-',sublines=subln) + '\n'
+                    else:
+                        use_external += self.format_lines(lines[i], indent, bullet='-',sublines=subln) + '\n'
+                use += use_internal*(use_internal != self.format_subsection('Used modules', indent=indent)) 
+                use += use_external*(use_external != self.format_subsection('External modules', indent=indent))
             del lines
         return use
 
