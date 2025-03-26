@@ -57,7 +57,7 @@ from sphinxfortran_ng.fortran_domain import FortranDomain
 
 
 logger = logging.getLogger(__name__)
-
+fortran_invs = {}
 
 # Fortran parser and formatter
 # ----------------------------
@@ -1082,9 +1082,9 @@ class F90toRst(object):
 
         # Remote reference
         kind = 'func'
-        if fname in self.types:
+        if fname in self.types or ('f:type' in fortran_invs and fname in fortran_invs['f:type']):
             kind = 'type'
-        elif fname in self.variables:
+        elif fname in self.variables or ('f:variable' in fortran_invs and fname in fortran_invs['f:variable']):
             kind = 'var'
         from sphinxfortran_ng.fortran_domain import f_sep
         if falias:
@@ -2126,6 +2126,24 @@ class FortranAutoSrcfileDirective(Directive):
 
         return []
 
+def load_intersphinx_inventories(app):
+    global fortran_invs
+    fortran_invs = {}
+    all_invs = app.env.intersphinx_named_inventory
+    which_invs = [inv for inv in all_invs.keys() if 'f:module' in all_invs[inv].keys()
+                                      or 'f:subroutine' in all_invs[inv].keys()
+                                      or 'f:function' in all_invs[inv].keys()
+                                      or 'f:variable' in all_invs[inv].keys()
+                                      or 'f:type' in all_invs[inv].keys()
+                                      or 'f:interface' in all_invs[inv].keys()]
+    for iinv in range(len(which_invs)):
+        ftypeslist = all_invs[which_invs[iinv]].keys()
+        for jkey in ftypeslist:
+            keylist = []
+            for ikey in all_invs[which_invs[iinv]][jkey].keys():
+                keylist.append(ikey.split('/')[-1])
+            fortran_invs[jkey] = keylist
+
 
 def setup(app):
 
@@ -2159,4 +2177,5 @@ def setup(app):
         automodvars=FortranAutoModvarsDirective,
     )
     app.connect('builder-inited', fortran_parse)
+    app.connect('builder-inited', load_intersphinx_inventories)
 
