@@ -1070,6 +1070,7 @@ class FortranXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
         refnode['f:module'] = env.temp_data.get('f:module')
         refnode['f:type'] = env.temp_data.get('f:type')
+        docname = env.docname
         if not has_explicit_title:
             title = title.lstrip('.')   # only has a meaning for the target
             target = target.lstrip('~')  # only has a meaning for the title
@@ -1099,8 +1100,20 @@ class FortranXRefRole(XRefRole):
                                     #if targetshort == ikey.split(f_sep)[-1] and ikey.startswith('f' + f_sep) and (targetlist==[] or (ikey not in targetlist[-1] and targetlist[-1] not in ikey)):
                                     if targetshort.lower() == ikey.split(f_sep)[-1].lower() and ikey.lower().startswith('f' + f_sep.lower()) and (targetlist == [] or (ikey not in targetlist[-1] and targetlist[-1] not in ikey)):
                                         targetlist.append(ikey)
+ 
+                        # Check for preferred cross-references
+                        if hasattr(env, 'preferred_crossrefs') and docname in env.preferred_crossrefs:
+                            preferred_crossrefs = env.preferred_crossrefs[docname]
+                        else:
+                            preferred_crossrefs = {}
+                        if target in preferred_crossrefs:
+                            # If we have a preferred cross-reference, replace the target
+                            preferred_target = preferred_crossrefs[target]
+                            if preferred_target in targetlist:
+                                targetlist = [preferred_target]
+                                        
                         if len(targetlist)>1:
-                            print("Warning, duplicate labels for "+title+": ",targetlist)
+                            print("Warning, duplicate labels for "+target+": ",targetlist)
                         target = targetlist[0]
                     except:
                         pass
