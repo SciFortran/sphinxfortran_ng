@@ -1269,7 +1269,7 @@ class FortranDomain(Domain):
 
         if not name:
             return None, None
-        if f_sep in name:
+        if f_sep in name and any(iic.isalnum() for iic in name.split(f_sep)[-1]):
             modname, name = name.split(f_sep,1)
         #modname = modname or '_'
         if '%' in name:
