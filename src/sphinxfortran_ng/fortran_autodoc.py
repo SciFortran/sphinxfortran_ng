@@ -58,6 +58,7 @@ from sphinxfortran_ng.fortran_domain import FortranDomain
 
 logger = logging.getLogger(__name__)
 fortran_invs = {}
+backup_desc = {}
 
 # Fortran parser and formatter
 # ----------------------------
@@ -342,6 +343,7 @@ class F90toRst(object):
 
                 # Get module description
                 block['desc'],block['synopsis'] = self.get_comment(modsrc, aslist=True)
+                
 
                 # Scan types and routines
                 for subblock in block['body']:
@@ -393,6 +395,11 @@ class F90toRst(object):
 
         # Comment
         block['desc'],block['synopsis'] = self.get_comment(subsrc, aslist=True)
+        
+        if block['name'] in backup_desc or block['desc'] == []:
+            pass
+        else:
+            backup_desc[block['name']]=block['desc']
 
         # Scan comments to find descriptions
         if block['desc'] and block['block'] in [
@@ -1391,10 +1398,26 @@ class F90toRst(object):
             typeshape += '\n\n'
         thedescription = block.get('desc', None)
         try:
-            attrs = re.split(r"default=", options['attrs'])
-            attrs[0] = re.sub(r",\s*", ", ",':Attributes: ' + attrs[0].strip(','))
-            if len(attrs) > 1:
-                attrs[1] = ':Default: ' + attrs[1].strip(',')
+            
+            attrstmp = re.split(r"default=", options['attrs'])
+            attrs = []
+        
+            pattern = r'bind\(\s*(\w+)\s*,\s*name\s*=\s*"(\w+)"\s*\)'     
+            match = re.search(pattern, attrstmp[0])
+            if match:
+                full_match = match.group(0)   # e.g., 'bind(x, name="y")'
+                bindlang = match.group(1)         # e.g., 'x'
+                bindname = match.group(2)         # e.g., 'y'       
+                attrstmp[0] = attrstmp[0].replace(full_match, '')
+            
+            if attrstmp[0].strip(',') != '':
+                attrs.append(re.sub(r",\s*", ", ",':Attributes: ' + attrstmp[0].strip(',')))
+            
+            if match:            
+                attrs.append(':Bindings: '+'Language = **'+bindlang+'**, Name = **'+bindname+'** ')
+            
+            if len(attrstmp) > 1:
+                attrs.append(':Default: ' + attrstmp[1].strip(','))
         except:
             attrs = ''
         #Search for patterns in the description of the type :something $varname:`something else`
@@ -1481,7 +1504,18 @@ class F90toRst(object):
 
     def format_routine(self, block, indent=0):
         """Format the description of a function, a subroutine or a program"""
-        # Declaration of a subroutine or function
+        
+        try:
+            listbinds=block['bindlang']
+            attrs = self.format_lines([':Bindings: '])
+            attrlist=[]
+            for i in range(len(listbinds)):
+                stringtoadd = 'Language = **'+block['bindlang'][i][0]+'**, Name = **'+block['bindlang'][i][1]+'** '
+                attrlist.append(stringtoadd)
+            attrs = attrs + self.format_lines(attrlist, bullet = len(listbinds)>1, indent=indent+1)
+        except:
+            attrs = ''
+            
         if isinstance(block, six.string_types):
             if block not in list(self.programs.keys()) + \
                     list(self.routines.keys()):
@@ -1512,17 +1546,36 @@ class F90toRst(object):
 
         # Treat variables in comment (subroutines and functions only)
         comments = list(block['desc']) + ['']
+        if comments == ['']:
+            try:
+                comments = list(backup_desc[block['name']]) + ['']
+            except:
+                pass
+        
+        comments.append(attrs)
+        
         if blocktype == 'subroutine' or blocktype == 'function':
             found = []
-            for iline in range(len(comments)):
-                if 'vardescmatch' in block:
-                    m = block['vardescmatch'](comments[iline])
+            iline = 0
+            while iline < len(comments):
+                for key in block['vars']:
+                    sreg = r'^\s*@param\w*\s+(?P<varname>%s)\s*[:\-–—]\s*(?P<vardesc>.+)' % key
+                    theregex = re.compile(sreg).match
+                    m = theregex(comments[iline])
                     if m:
-                        varname = m.group('varname')
-                        found.append(varname)
+                        varname = key
                         if varname != '':
-                            comments[iline] = self.format_argfield(
-                                block['vars'][varname], block=block)
+                            block['vars'][varname]['desc'] += ' ' + m.group('vardesc')
+                            comments.pop(iline)
+                            iline = iline - 1
+                iline = iline + 1
+
+                            #comments.append(
+                            #    self.format_argfield(
+                            #        block['vars'][varname],
+                            #        block=block))
+                            #found.append(varname)
+                            
             for varname in block['args'] + block['sortvars']:
                 if varname not in found:
                     comments.append(
@@ -1584,7 +1637,7 @@ class F90toRst(object):
         #        calls.append(callto)
         #calls = '\n' + self.format_lines(calls, indent=indent + 1)
         #return declaration + description + use + calls + '\n\n'
-        return declaration + description + use + '\n\n'
+        return declaration + description   + use + '\n\n'
 
     format_function = format_routine
     format_subroutine = format_routine

@@ -683,7 +683,10 @@ def _simplifyargs(argsline):
 
 crackline_re_1 = re.compile(r'\s*(?P<result>\b[a-z]+\w*\b)\s*=.*', re.I)
 crackline_bind_1 = re.compile(r'\s*(?P<bind>\b[a-z]+\w*\b)\s*=.*', re.I)
-crackline_bindlang = re.compile(r'\s*bind\(\s*(?P<lang>[^,]+)\s*,\s*name\s*=\s*"(?P<lang_name>[^"]+)"\s*\)', re.I)
+crackline_bindlang = re.compile(
+    r'\bbind\s*\(\s*(?P<lang>[^,()]+)\s*,\s*name\s*=\s*[\'"](?P<lang_name>[^\'"]+)[\'"]\s*\)',
+    re.I,
+)
 
 def crackline(line, reset=0):
     """
@@ -957,7 +960,7 @@ def _resolvetypedefpattern(line):
     return None, [], None
 
 def parse_name_for_bind(line):
-    pattern = re.compile(r'bind\(\s*(?P<lang>[^,]+)(?:\s*,\s*name\s*=\s*["\'](?P<name>[^"\']+)["\']\s*)?\)', re.I)
+    pattern = re.compile(r'(?:\s*\bbind\s*\(\s*[^()]*?\))+', re.I)
     match = pattern.search(line)
     bind_statement = None
     if match:
@@ -1150,12 +1153,9 @@ def analyzeline(m, case, line):
         if block in ['function', 'subroutine']:  # set global attributes
             # name is fortran name
             if bindcline:
-                bindcdat = re.search(crackline_bindlang, bindcline)
+                bindcdat = re.findall(crackline_bindlang, bindcline)
                 if bindcdat:
-                    groupcache[groupcounter]['bindlang'] = {name : {}}
-                    groupcache[groupcounter]['bindlang'][name]["lang"] = bindcdat.group('lang')
-                    if bindcdat.group('lang_name'):
-                        groupcache[groupcounter]['bindlang'][name]["name"] = bindcdat.group('lang_name')
+                    groupcache[groupcounter]['bindlang'] = bindcdat
             try:
                 groupcache[groupcounter]['vars'][name] = appenddecl(
                     groupcache[groupcounter]['vars'][name], groupcache[groupcounter - 2]['vars'][''])
