@@ -581,7 +581,8 @@ class F90toRst(object):
             prefixtype = blocktype
         if blocktype == 'interface':   #special case for operator overload
             rstart = re.compile(
-                r"^\s*%s%s\s+%s.*$" %
+                #r"^\s*%s%s\s+%s.*$" %
+                r"^\s*%s%s\s+%s(?=\s|$|\()" %
                 (ftypes, prefixtype, re.escape(blockname)), re.I).match
             rend = re.compile(r"^\s*end\s+%s.*$" % prefixtype, re.I).match
         else:
