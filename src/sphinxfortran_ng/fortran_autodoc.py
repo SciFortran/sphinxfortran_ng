@@ -1374,7 +1374,7 @@ class F90toRst(object):
         #vdesc = block.get('desc', '')
         # return specs+'\n'+vdesc+'\n'
 
-    def format_var(self, block, indent=0, bullet=False):
+    def format_variable(self, block, indent=0, bullet=False):
         """Format the description of a module type
 
          :Parameters:
@@ -1713,7 +1713,7 @@ class F90toRst(object):
                 varnames.sort()
             for varname in varnames:
                 bvar = block['vars'][varname]
-                if self.is_member(bvar): variables += self.format_var(bvar, indent=indent)
+                if self.is_member(bvar): variables += self.format_variable(bvar, indent=indent)
             if variables and not ownSection: variables = self.format_subsection(
                 'Variables', indent=indent) + variables + '\n\n'
             elif variables and ownSection: variables += '\n\n'
@@ -2068,7 +2068,7 @@ class FortranAutoObjectDirective(Directive):
 #            self.warn(self._warning%objname)
 
         # Get rst
-        raw_text = getattr(f90torst, 'format_' + self._objtype)(objname)
+        raw_text = getattr(f90torst, 'format_' + self._objtype)(objects[objname])
 
         # Check if inside module
         b = objects[objname]
@@ -2223,6 +2223,8 @@ def setup(app):
     FortranDomain.directives.update(
         automodule=FortranAutoModuleDirective,
         autoroutine=FortranAutoObjectDirective,
+        autotype=FortranAutoTypeDirective,
+        autovariable=FortranAutoVariableDirective,
         autofunction=FortranAutoFunctionDirective,
         autosubroutine=FortranAutoSubroutineDirective,
         autointerface=FortranAutoInterfaceDirective,
