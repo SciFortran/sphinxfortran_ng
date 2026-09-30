@@ -1,5 +1,5 @@
-Worked examples
-===============
+Examples
+========
 
 This page walks through two real modules of the SciFortran / EDIpack code
 base. They were chosen because they sit at the two ends of what a Fortran
@@ -15,10 +15,9 @@ documentation tool has to cope with:
    preprocessor directives.
 
 The sources are copied in the ``examples`` folder of the documentation, which
-is the ``fortran_src`` directory of ``conf.py``. Their live renderings, built
-by the directives shown here, are the pages :doc:`example_sf_arrays` and
-:doc:`example_ed_input_vars`. Every block of reStructuredText below is the
-actual output of the parser.
+is the ``fortran_src`` directory of ``conf.py``. Each example ends with its
+*live rendering*, built by the directives shown there. Every block of
+reStructuredText in between is the actual output of the parser.
 
 .. contents:: On this page
    :local:
@@ -203,6 +202,18 @@ module while the routines are placed where you want them:
 
    .. f:autoroutine:: powspace
    .. f:autoroutine:: upmspace
+
+
+Live rendering of ``SF_ARRAYS``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Everything below is generated from ``examples/SF_ARRAYS.f90`` by
+
+.. code-block:: rst
+
+   .. f:automodule:: sf_arrays
+
+.. f:automodule:: sf_arrays
 
 
 Example 2: a module of input variables (``ED_INPUT_VARS``)
@@ -434,7 +445,7 @@ have a description. Of the 14 remaining ones:
   ``pair_field_``, ...): they have no description because they are
   implementation details of the input reader. They are listed in the
   documentation because they are public. Exclude them with
-  ``:undoc-members:`` (see the live page), or declare them ``private``;
+  ``:undoc-members:`` (see the live rendering below), or declare them ``private``;
 * ``g_ph_diag`` and ``niter`` really lack a description: ``g_ph_diag`` has
   the description on the next lines but no trailing ``!`` on the declaration,
   and ``niter`` has a bare ``!`` followed by a blank;
@@ -446,8 +457,19 @@ variable is ``bath_type``), so the link stays unresolved, and the module
 description says "preocedure".
 
 
-Putting it together
--------------------
+Live rendering of ``ED_INPUT_VARS``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following page documents the two modules using a mix of directives; see
-:doc:`example_sf_arrays` and :doc:`example_ed_input_vars` for the built result.
+Everything below is generated from ``examples/ED_INPUT_VARS.f90``. The
+variables whose name ends in an underscore are internal helpers of the input
+reader and are left out with ``:undoc-members:``:
+
+.. code-block:: rst
+
+   .. f:automodule:: ed_input_vars
+      :undoc-members: chidens_flag_, chiexct_flag_, chipair_flag_, chispin_flag_,
+                      ed_read_umatrix_, ed_total_ud_, ed_twin_, ed_use_kanamori_,
+                      pair_field_, rdm_flag_, uloc_
+
+.. f:automodule:: ed_input_vars
+   :undoc-members: chidens_flag_, chiexct_flag_, chipair_flag_, chispin_flag_, ed_read_umatrix_, ed_total_ud_, ed_twin_, ed_use_kanamori_, pair_field_, rdm_flag_, uloc_

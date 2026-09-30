@@ -135,12 +135,7 @@ Where to go next
 :doc:`examples`
    Walk-through of two real modules: a library of functions (``SF_ARRAYS``)
    and a module made of input variables (``ED_INPUT_VARS``), with the
-   generated reStructuredText, followed by the live rendering:
-   :doc:`example_sf_arrays` and :doc:`example_ed_input_vars`.
-
-:doc:`api`
-   Reference of the Python classes and methods, for people extending or
-   scripting the extension.
+   generated reStructuredText, each followed by its live rendering.
 
 :doc:`limitations`
    Known limitations and behaviours that differ from what one may expect,
@@ -158,9 +153,6 @@ Contents
    fortran_autodoc
    fortran_domain
    examples
-   example_sf_arrays
-   example_ed_input_vars
-   api
    limitations
 
 

@@ -560,25 +560,6 @@ is found in an Intersphinx inventory that contains Fortran objects, the link
 is made to that inventory.
 
 
-Using the parser from Python
-----------------------------
-
-The engine of the directives is the class
-:class:`~sphinxfortran_ng.fortran_autodoc.F90toRst`, which can be used
-without Sphinx being run, for instance to check a source file:
-
-.. code-block:: python
-
-   from sphinxfortran_ng.fortran_autodoc import F90toRst
-
-   f = F90toRst(["src/sf_arrays.f90"], ic="   ")   # ic: indentation string
-   print(list(f.modules), list(f.routines))
-   print(f.format_module("sf_arrays"))           # the text of f:automodule
-   print(f.format_routine("linspace"))           # the text of f:autoroutine
-
-Importing the class needs Sphinx and docutils to be installed, since the
-module also defines the directives. The methods are described in :doc:`api`.
-
 
 Notes and Limitations
 ---------------------
