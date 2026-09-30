@@ -1,5 +1,5 @@
-Known limitations and gotchas
-==============================
+Known limitations
+=================
 
 This page collects the behaviours of the current version that differ from
 what one may expect. Each was reproduced on small test sources. When a

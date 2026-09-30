@@ -155,11 +155,3 @@ Contents
    examples
    limitations
 
-
-Indices and Tables
-------------------
-
-* :ref:`genindex`
-* :ref:`f-modindex`
-* :ref:`py-modindex`
-* :ref:`search`
