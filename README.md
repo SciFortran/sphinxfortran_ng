@@ -16,7 +16,7 @@ This code is based on the following original software:
 
 ## Documentation
 
-The full documentation lives in the `doc` folder:
+The full documentation lives in the `doc` folder and on [GitHub pages](https://scifortran.github.io/sphinxfortran_ng/):
 
 ```console
 pip install -r doc/requirements.txt
