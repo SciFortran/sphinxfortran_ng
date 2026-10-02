@@ -5,6 +5,7 @@
 *.gcno
 test/bin
 *build*
+*pycache*
 .archive/
 src/ED_VERSION.f90
 .DS_Store
