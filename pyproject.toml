@@ -13,3 +13,4 @@ classifiers = [
 
 [project.urls]
 Repository = "https://github.com/SciFortran/sphinxfortran_ng"
+Documentation = "https://scifortran.github.io/sphinxfortran_ng/"
