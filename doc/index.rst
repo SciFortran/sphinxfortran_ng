@@ -17,9 +17,9 @@ Sphinx directives and roles.
 
 The extension is designed to integrate naturally with standard Sphinx
 workflows and follows the conventions of ``sphinx.ext.autodoc`` where
-possible. It is an improved version of the original ``sphinx-fortran``
-project, whose parser is itself a trimmed copy of the ``crackfortran``
-module of NumPy/f2py.
+possible. It is an extended version of the original `sphinx-fortran <https://pypi.org/project/sphinx-fortran/>`_
+project, later improved by the `L_sim group <https://gitlab.com/l_sim/sphinx-fortran>`_, and it makes use of a 
+trimmed copy of the ``crackfortran`` module of `NumPy/f2py <https://github.com/numpy/numpy/tree/main/numpy/f2py>`_ as a parser.
 
 
 Features
