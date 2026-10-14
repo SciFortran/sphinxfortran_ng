@@ -396,7 +396,10 @@ class F90toRst(object):
             tail_start, tail_end = r'(?=\s|$|\()', r'.*$'
         else:
             tail_start, tail_end = r'\b.*$', r'\s+%s\b.*$' % blockname
-        rstart = re.compile(r"^\s*%s%s\s+%s%s" % (ftypes, prefixtype, blockname, tail_start), re.I).match
+        if blocktype == 'type':  # also match "type, extends(x) :: name" and "type :: name"
+            rstart = re.compile(r"^\s*type(?:\s*,.*?::\s*|\s+(?:::\s*)?)%s%s" % (blockname, tail_start), re.I).match
+        else:
+            rstart = re.compile(r"^\s*%s%s\s+%s%s" % (ftypes, prefixtype, blockname, tail_start), re.I).match
         rend = re.compile(r"^\s*end\s+%s%s" % (prefixtype, tail_end), re.I).match
         if isinstance(stopmatch, str):
             stopmatch = re.compile(stopmatch).match
